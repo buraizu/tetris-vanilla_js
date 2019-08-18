@@ -5,6 +5,7 @@ context.scale(20, 20) // makes piece bigger
 
 function arenaSweep() {
   // 'continue' statement in 2nd for loop brings back to here
+  let rowCount = 1
   outer: for(let y = arena.length - 1; y > 0; --y) {
     for(let x = 0; x < arena[y].length; ++x) {
       if(arena[y][x] === 0) {
@@ -16,6 +17,9 @@ function arenaSweep() {
     // put cleared row back on top of arena
     arena.unshift(row)
     ++y
+
+    player.score += rowCount * 10
+    rowCount *= 2
   }
 }
 
@@ -127,6 +131,7 @@ function playerDrop() {
     merge(arena, player);
     playerReset()
     arenaSweep()
+    updateScore()
   }
   dropCounter = 0;
 }
@@ -147,7 +152,9 @@ function playerReset() {
                 (player.matrix[0].length / 2 | 0);
   // if piece immediately collides
   if(collide(arena, player)) {
-    arena.forEach((row) => row.fill(0))
+    arena.forEach( (row) => row.fill(0) )
+    player.score = 0
+    updateScore()
   }
 }
 
@@ -204,6 +211,10 @@ function update(time = 0) {
   requestAnimationFrame(update)
 }
 
+function updateScore() {
+  document.getElementById('score').innerText = player.score
+}
+
 const colors = [
   null,
   '#FF0D72',
@@ -218,8 +229,9 @@ const colors = [
 const arena = createMatrix(12, 20)
 
 const player = {
-  pos: {x: 5, y: 5},
-  matrix: createPiece('T')
+  pos: {x: 0, y: 0},
+  matrix: null,
+  score: 0
 }
 
 document.addEventListener('keydown', (event) => {
@@ -236,4 +248,6 @@ document.addEventListener('keydown', (event) => {
   }
 })
 
+playerReset()
+updateScore()
 update()
